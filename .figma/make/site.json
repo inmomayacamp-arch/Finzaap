@@ -1,0 +1,10 @@
+{
+  "description": "Track your income, expenses, payments, and receivables with detailed statistics to manage your personal or business finances efficiently.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
