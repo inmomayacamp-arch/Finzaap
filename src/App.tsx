@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import {
   Home, ArrowDownCircle, ArrowUpCircle, BarChart2, PiggyBank, User,
   TrendingUp, TrendingDown, RefreshCw, CreditCard, Banknote,
-  Bell, AlertCircle, X, Check, Plus, ChevronLeft, ChevronRight, FileDown,
+  Bell, AlertCircle, X, Check, Plus, Minus, ChevronLeft, ChevronRight, FileDown,
   Copy, Wifi, WifiOff, LogOut, Users,
 } from 'lucide-react'
 import { loadAccount, saveAccount, generateAccountId } from './syncApi'
@@ -27,7 +27,7 @@ interface SavingCategory { id: string; name: string; goal: number; emoji: string
 interface Saving {
   id: string; categoryId: string; amount: number
   date: string; method: 'tarjeta' | 'efectivo'; nota: string
-  createdBy?: string
+  createdBy?: string; kind?: 'add' | 'remove'
 }
 interface Recurring { id: string; type: TxType; description: string; amount: number; tag: string; method: 'tarjeta' | 'efectivo' }
 interface RecurringCobro { id: string; description: string; amount: number; nota: string }
@@ -571,12 +571,15 @@ function AddCategoryModal({ onAdd, onClose }: { onAdd: (c: SavingCategory) => vo
 }
 
 // ── Modal Ahorro ──────────────────────────────────────────────────────────────
-function AddSavingModal({ categories, onAdd, onClose }: { categories: SavingCategory[]; onAdd: (s: Saving) => void; onClose: () => void }) {
-  const [form, setForm] = useState({ categoryId: categories[0]?.id || '', amount: '', date: new Date().toISOString().slice(0, 10), method: 'tarjeta' as 'tarjeta' | 'efectivo', nota: '' })
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }))
+function AddSavingModal({ categories, initialCategoryId, onAdd, onClose }: { categories: SavingCategory[]; initialCategoryId?: string | null; onAdd: (s: Saving) => void; onClose: () => void }) {
+  const [form, setForm] = useState({ categoryId: initialCategoryId || categories[0]?.id || '', amount: '', date: new Date().toISOString().slice(0, 10), method: 'efectivo' as 'tarjeta' | 'efectivo', nota: '', kind: 'add' as 'add' | 'remove' })
+  const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }))
+  const isRemove = form.kind === 'remove'
+  const accent = isRemove ? '#ef4444' : '#f59e0b'
+  const accentBg = isRemove ? '#fef2f2' : '#fffbeb'
   const submit = () => {
     if (!form.categoryId || !form.amount) return
-    onAdd({ id: Date.now().toString(), categoryId: form.categoryId, amount: parseFloat(form.amount), date: form.date, method: form.method, nota: form.nota })
+    onAdd({ id: Date.now().toString(), categoryId: form.categoryId, amount: parseFloat(form.amount), date: form.date, method: form.method, nota: form.nota, kind: form.kind })
     onClose()
   }
   return (
@@ -584,31 +587,40 @@ function AddSavingModal({ categories, onAdd, onClose }: { categories: SavingCate
       <div onClick={e => e.stopPropagation()} style={{ background: '#fff', borderRadius: '24px 24px 0 0', padding: '8px 0 40px', width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ width: 36, height: 4, background: '#e5e7eb', borderRadius: 2, margin: '12px auto 20px' }} />
         <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ fontWeight: 700, fontSize: 18, color: '#0f1117' }}>Agregar ahorro</div>
+          <div style={{ fontWeight: 700, fontSize: 18, color: '#0f1117' }}>{isRemove ? 'Quitar saldo' : 'Agregar ahorro'}</div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(['add', 'remove'] as const).map(k => (
+              <button key={k} onClick={() => set('kind', k)}
+                style={{ flex: 1, padding: '11px', borderRadius: 10, border: `1.5px solid ${form.kind === k ? (k === 'remove' ? '#ef4444' : '#f59e0b') : '#eef0f4'}`, background: form.kind === k ? (k === 'remove' ? '#fef2f2' : '#fffbeb') : '#f8fafc', color: form.kind === k ? (k === 'remove' ? '#ef4444' : '#f59e0b') : '#a8b0bf', fontWeight: 600, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                {k === 'add' ? <><Plus size={15} /> Agregar</> : <><Minus size={15} /> Quitar</>}
+              </button>
+            ))}
+          </div>
 
           <div>
             <div style={{ ...eyebrow, marginBottom: 8 }}>Categoría</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {categories.map(c => (
                 <button key={c.id} onClick={() => set('categoryId', c.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 12, border: `1.5px solid ${form.categoryId === c.id ? '#f59e0b' : '#eef0f4'}`, background: form.categoryId === c.id ? '#fffbeb' : '#f8fafc', cursor: 'pointer', textAlign: 'left' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 12, border: `1.5px solid ${form.categoryId === c.id ? accent : '#eef0f4'}`, background: form.categoryId === c.id ? accentBg : '#f8fafc', cursor: 'pointer', textAlign: 'left' }}>
                   <span style={{ fontSize: 20 }}>{c.emoji}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 14, fontWeight: 500, color: '#0f1117' }}>{c.name}</div>
                     {c.goal > 0 && <div style={{ fontSize: 11, color: '#a8b0bf' }}>Meta: {fmt(c.goal)}</div>}
                   </div>
-                  {form.categoryId === c.id && <Check size={16} color="#f59e0b" />}
+                  {form.categoryId === c.id && <Check size={16} color={accent} />}
                 </button>
               ))}
             </div>
           </div>
 
-          <div style={{ background: '#fffbeb', borderRadius: 14, padding: '14px 18px', border: '2px solid #fde68a' }}>
+          <div style={{ background: accentBg, borderRadius: 14, padding: '14px 18px', border: `2px solid ${accent}55` }}>
             <div style={{ ...eyebrow, marginBottom: 6 }}>Monto (MXN)</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: '#f59e0b' }}>$</span>
+              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: accent }}>$</span>
               <input autoFocus type="number" placeholder="0" value={form.amount} onChange={e => set('amount', e.target.value)}
-                style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: '#f59e0b', outline: 'none' }} />
+                style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: accent, outline: 'none' }} />
             </div>
           </div>
 
@@ -618,14 +630,14 @@ function AddSavingModal({ categories, onAdd, onClose }: { categories: SavingCate
           <div style={{ display: 'flex', gap: 8 }}>
             {(['tarjeta', 'efectivo'] as const).map(m => (
               <button key={m} onClick={() => set('method', m)}
-                style={{ flex: 1, padding: '11px', borderRadius: 10, border: `1.5px solid ${form.method === m ? '#f59e0b' : '#eef0f4'}`, background: form.method === m ? '#fffbeb' : '#f8fafc', color: form.method === m ? '#f59e0b' : '#a8b0bf', fontWeight: 500, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                style={{ flex: 1, padding: '11px', borderRadius: 10, border: `1.5px solid ${form.method === m ? accent : '#eef0f4'}`, background: form.method === m ? accentBg : '#f8fafc', color: form.method === m ? accent : '#a8b0bf', fontWeight: 500, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                 {m === 'tarjeta' ? <><CreditCard size={15} /> Tarjeta</> : <><Banknote size={15} /> Efectivo</>}
               </button>
             ))}
           </div>
 
-          <button onClick={submit} style={{ background: '#f59e0b', border: 'none', borderRadius: 14, color: '#fff', padding: '14px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }}>
-            Guardar Ahorro
+          <button onClick={submit} style={{ background: accent, border: 'none', borderRadius: 14, color: '#fff', padding: '14px', fontWeight: 700, fontSize: 16, cursor: 'pointer' }}>
+            {isRemove ? 'Quitar saldo' : 'Guardar Ahorro'}
           </button>
         </div>
       </div>
@@ -745,6 +757,7 @@ export default function App() {
   const [addModal, setAddModal] = useState<TxType | null>(null)
   const [addPendModal, setAddPendModal] = useState<'hacer' | 'cobrar' | null>(null)
   const [showAddSaving, setShowAddSaving] = useState(false)
+  const [activeSavingCat, setActiveSavingCat] = useState<string | null>(null)
   const [reportFilter, setReportFilter] = useState<'all' | 'income' | 'expense'>('all')
   const [reportPeriod, setReportPeriod] = useState<'dia' | 'semana' | 'mes'>('mes')
   const [reportDate, setReportDate] = useState(() => new Date().toISOString().slice(0, 10))
@@ -765,8 +778,8 @@ export default function App() {
   const balance     = income - expense
   const tarjetaBal  = useMemo(() => txs.filter(t => t.method === 'tarjeta').reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0), [txs])
   const efectivoBal = useMemo(() => txs.filter(t => t.method === 'efectivo').reduce((s, t) => s + (t.type === 'income' ? t.amount : -t.amount), 0), [txs])
-  const savingTarjeta  = useMemo(() => savings.filter(s => s.method === 'tarjeta').reduce((a, s) => a + s.amount, 0), [savings])
-  const savingEfectivo = useMemo(() => savings.filter(s => s.method === 'efectivo').reduce((a, s) => a + s.amount, 0), [savings])
+  const savingTarjeta  = useMemo(() => savings.filter(s => s.method === 'tarjeta').reduce((a, s) => a + (s.kind === 'remove' ? -s.amount : s.amount), 0), [savings])
+  const savingEfectivo = useMemo(() => savings.filter(s => s.method === 'efectivo').reduce((a, s) => a + (s.kind === 'remove' ? -s.amount : s.amount), 0), [savings])
   const savingTotal    = savingTarjeta + savingEfectivo
   const expByTag  = useMemo(() => { const m: Record<string, number> = {}; txs.filter(t => t.type === 'expense').forEach(t => { m[t.tag] = (m[t.tag] || 0) + t.amount }); return Object.entries(m).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value) }, [txs])
   const incByTag  = useMemo(() => { const m: Record<string, number> = {}; txs.filter(t => t.type === 'income').forEach(t => { m[t.tag] = (m[t.tag] || 0) + t.amount }); return Object.entries(m).map(([name, value]) => ({ name, value })) }, [txs])
@@ -1000,7 +1013,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', background: '#f0f2f5', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {addModal && <AddModal defaultType={addModal} recurring={recurring} onAdd={addTx} onAddRecurring={addRecurring} onClose={() => setAddModal(null)} />}
       {addPendModal && <AddPendingModal defaultType={addPendModal} recurringCobros={recurringCobros} recurringHacers={recurringHacers} onAdd={addPend} onAddRecurringCobro={addRecurringCobro} onAddRecurringHacer={addRecurringHacer} onClose={() => setAddPendModal(null)} />}
-      {showAddSaving && <AddSavingModal categories={savingCats} onAdd={addSaving} onClose={() => setShowAddSaving(false)} />}
+      {showAddSaving && <AddSavingModal categories={savingCats} initialCategoryId={activeSavingCat} onAdd={addSaving} onClose={() => setShowAddSaving(false)} />}
       {showAddCategory && <AddCategoryModal onAdd={addSavingCat} onClose={() => setShowAddCategory(false)} />}
 
       <div style={{ width: '100%', maxWidth: 430, minHeight: '100vh', background: '#f0f2f5', display: 'flex', flexDirection: 'column', paddingBottom: 72 }}>
@@ -1412,7 +1425,7 @@ export default function App() {
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setShowAddCategory(true)} style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', border: 'none', borderRadius: 10, color: '#fff', padding: '9px 14px', fontWeight: 700, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 12px rgba(99,102,241,0.35)', letterSpacing: '0.01em' }}>+ Categoría</button>
-                <button onClick={() => savingCats.length > 0 && setShowAddSaving(true)} style={{ background: '#f59e0b', border: 'none', borderRadius: 10, color: '#fff', padding: '9px 14px', fontWeight: 600, fontSize: 13, cursor: 'pointer', opacity: savingCats.length === 0 ? 0.5 : 1 }}>+ Agregar</button>
+                <button onClick={() => { setActiveSavingCat(null); savingCats.length > 0 && setShowAddSaving(true) }} style={{ background: '#f59e0b', border: 'none', borderRadius: 10, color: '#fff', padding: '9px 14px', fontWeight: 600, fontSize: 13, cursor: 'pointer', opacity: savingCats.length === 0 ? 0.5 : 1 }}>+ Agregar</button>
               </div>
             </div>
 
@@ -1436,11 +1449,12 @@ export default function App() {
                   Crea una categoría para empezar a ahorrar
                 </div>
               : savingCats.map(cat => {
-                  const catTotal = savings.filter(s => s.categoryId === cat.id).reduce((a, s) => a + s.amount, 0)
+                  const catTotal = savings.filter(s => s.categoryId === cat.id).reduce((a, s) => a + (s.kind === 'remove' ? -s.amount : s.amount), 0)
                   const pct = cat.goal > 0 ? Math.min((catTotal / cat.goal) * 100, 100) : 0
                   const catSavings = savings.filter(s => s.categoryId === cat.id)
                   return (
-                    <div key={cat.id} style={{ background: '#fff', borderRadius: 18, padding: '16px 18px', marginBottom: 12, ...sh, border: '1px solid #eef0f4' }}>
+                    <div key={cat.id} onClick={() => { setActiveSavingCat(cat.id); setShowAddSaving(true) }}
+                      style={{ background: '#fff', borderRadius: 18, padding: '16px 18px', marginBottom: 12, ...sh, border: '1px solid #eef0f4', cursor: 'pointer' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                         <div style={{ width: 42, height: 42, borderRadius: 12, background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{cat.emoji}</div>
                         <div style={{ flex: 1 }}>
@@ -1451,7 +1465,7 @@ export default function App() {
                           <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, fontWeight: 600, color: '#f59e0b' }}>{fmt(catTotal)}</div>
                           {cat.goal > 0 && <div style={{ fontSize: 11, color: '#a8b0bf' }}>{pct.toFixed(0)}%</div>}
                         </div>
-                        <button onClick={() => delSavingCat(cat.id)} style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
+                        <button onClick={e => { e.stopPropagation(); delSavingCat(cat.id) }} style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
                           <X size={16} />
                         </button>
                       </div>
@@ -1469,8 +1483,8 @@ export default function App() {
                               <div style={{ fontSize: 12, color: '#a8b0bf', flex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
                                 {s.method === 'tarjeta' ? <CreditCard size={10} /> : <Banknote size={10} />} {s.date}{s.nota ? ` · ${s.nota}` : ''}
                               </div>
-                              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: '#f59e0b', fontWeight: 500 }}>+{fmt(s.amount)}</div>
-                              <button onClick={() => delSaving(s.id)} style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
+                              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: s.kind === 'remove' ? '#ef4444' : '#f59e0b', fontWeight: 500 }}>{s.kind === 'remove' ? '-' : '+'}{fmt(s.amount)}</div>
+                              <button onClick={e => { e.stopPropagation(); delSaving(s.id) }} style={{ background: 'none', border: 'none', color: '#d1d5db', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}>
                                 <X size={14} />
                               </button>
                             </div>
