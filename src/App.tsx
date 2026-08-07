@@ -347,7 +347,7 @@ function AddModal({ defaultType, recurring, onAdd, onAddRecurring, onClose }: {
               <div style={{ fontSize: 12, color: '#a8b0bf', marginTop: 1 }}>Registra el movimiento</div>
             </div>
             {myRecurring.length > 0 && (
-              <button onClick={() => setShowRecurring(s => !s)} style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, padding: '6px 10px', fontSize: 12, color: '#68717f', cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 }}>
+              <button onClick={() => setShowRecurring(s => !s)} style={{ background: accentBg, border: `1px solid ${accent}33`, borderRadius: 8, padding: '6px 10px', fontSize: 12, color: accent, cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
                 <RefreshCw size={12} /> Recurrentes
               </button>
             )}
@@ -1520,7 +1520,7 @@ export default function App() {
             {/* Account code */}
             <div style={{ background: '#fff', borderRadius: 18, ...sh, border: '1px solid #eef0f4', padding: '16px 18px', marginBottom: 14 }}>
               <div style={{ ...eyebrow, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}><Users size={11} /> Cuenta compartida</div>
-              <div style={{ fontSize: 13, color: '#68717f', marginBottom: 10 }}>Comparte este código con tu pareja para sincronizar:</div>
+              <div style={{ fontSize: 13, color: '#68717f', marginBottom: 10 }}>Comparte este código con alguien más para sincronizar:</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f8fafc', borderRadius: 12, padding: '12px 14px', border: '1px solid #eef0f4' }}>
                 <span style={{ flex: 1, fontFamily: 'DM Mono, monospace', fontSize: 20, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em' }}>{accountId}</span>
                 <button
