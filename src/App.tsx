@@ -309,7 +309,7 @@ function AddModal({ defaultType, recurring, onAdd, onAddRecurring, onClose }: {
   const [form, setForm] = useState({
     type: defaultType, description: '', amount: '',
     date: new Date().toISOString().slice(0, 10),
-    tag: '', method: 'tarjeta' as 'tarjeta' | 'efectivo',
+    tag: '', method: 'efectivo' as 'tarjeta' | 'efectivo',
     nota: '', recurrente: false,
   })
   const [showRecurring, setShowRecurring] = useState(false)
@@ -377,7 +377,7 @@ function AddModal({ defaultType, recurring, onAdd, onAddRecurring, onClose }: {
             </div>
           </div>
 
-          <input placeholder="Descripción" value={form.description} onChange={e => set('description', e.target.value)}
+          <input placeholder="Concepto" value={form.description} onChange={e => set('description', e.target.value)}
             style={{ width: '100%', border: 'none', borderBottom: '1.5px solid #eef0f4', padding: '10px 0', fontSize: 15, color: '#0f1117', outline: 'none', background: 'transparent' }} />
 
           <input placeholder="Nota o comentario (opcional)" value={form.nota} onChange={e => set('nota', e.target.value)}
@@ -1052,12 +1052,12 @@ export default function App() {
                   </div>
                   <div style={{ background: '#fff', borderRadius: 12, padding: '11px 13px', border: '1px solid #eef0f4' }}>
                     <div style={{ fontSize: 11, color: '#a8b0bf', marginBottom: 5, display: 'flex', alignItems: 'center', gap: 4 }}><Banknote size={11} /> Efectivo</div>
-                    <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 600, fontSize: 16, color: '#0f1117' }}>{fmt(efectivoBal)}</div>
+                    <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 600, fontSize: 16, color: '#f59e0b' }}>{fmt(Math.abs(efectivoBal))}</div>
                   </div>
                 </div>
                 <div style={{ background: '#fff', borderRadius: 12, padding: '10px 13px', border: '1px solid #eef0f4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: 11, color: '#68717f', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total</div>
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 600, fontSize: 17, color: balance >= 0 ? '#0f1117' : '#ef4444' }}>{fmt(balance)}</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 600, fontSize: 17, color: '#10b981' }}>{fmt(balance)}</div>
                 </div>
               </div>
             </div>
