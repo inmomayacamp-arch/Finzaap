@@ -1014,13 +1014,44 @@ export default function App() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f5', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div className="app-shell">
       {addModal && <AddModal defaultType={addModal} recurring={recurring} onAdd={addTx} onAddRecurring={addRecurring} onClose={() => setAddModal(null)} />}
       {addPendModal && <AddPendingModal defaultType={addPendModal} recurringCobros={recurringCobros} recurringHacers={recurringHacers} onAdd={addPend} onAddRecurringCobro={addRecurringCobro} onAddRecurringHacer={addRecurringHacer} onClose={() => setAddPendModal(null)} />}
       {showAddSaving && <AddSavingModal categories={savingCats} initialCategoryId={activeSavingCat} onAdd={addSaving} onClose={() => setShowAddSaving(false)} />}
       {showAddCategory && <AddCategoryModal onAdd={addSavingCat} onClose={() => setShowAddCategory(false)} />}
 
-      <div style={{ width: '100%', maxWidth: 430, minHeight: '100vh', background: '#f0f2f5', display: 'flex', flexDirection: 'column', paddingBottom: 72 }}>
+      <aside className="app-sidebar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, padding: '0 6px' }}>
+          <div style={{ width: 34, height: 34, background: '#eef2ff', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+              <circle cx="9.5" cy="14.5" r="6" fill="#10b981" opacity="0.9" />
+              <circle cx="14.5" cy="9.5" r="6" fill="#6366f1" opacity="0.92" />
+            </svg>
+          </div>
+          <div style={{ fontWeight: 700, fontSize: 16, color: '#0f1117' }}>FinzApp</div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {NAV.map(item => {
+            const active = nav === item.id
+            return (
+              <button key={item.id} onClick={() => setNav(item.id)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, border: 'none', background: active ? `${item.activeColor}14` : 'none', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', color: active ? item.activeColor : '#68717f', fontWeight: active ? 600 : 500, fontSize: 14, textAlign: 'left' }}>
+                {item.icon}
+                {item.label}
+              </button>
+            )
+          })}
+        </div>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => setNav('cuenta')} style={{ display: 'flex', alignItems: 'center', gap: 10, border: 'none', background: 'none', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', textAlign: 'left' }}>
+          <div style={{ width: 30, height: 30, borderRadius: 9, background: 'linear-gradient(135deg,#6366f1,#a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+            {userName.charAt(0).toUpperCase()}
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f1117' }}>{userName}</div>
+        </button>
+      </aside>
+
+      <div className="app-main">
 
         {/* ── INICIO ── */}
         {nav === 'inicio' && (
@@ -1087,28 +1118,30 @@ export default function App() {
               </div>
             </div>
 
-            <div style={{ margin: '12px 12px 0', background: '#fff', borderRadius: 18, padding: '16px 18px', ...sh, border: '1px solid #eef0f4' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ ...eyebrow, marginBottom: 5 }}>Balance del mes</div>
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: balance >= 0 ? '#10b981' : '#ef4444', lineHeight: 1 }}>{fmt(balance)}</div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
-                  <div><span style={{ color: '#10b981', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>+{fmt(income)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>ingresos</span></div>
-                  <div><span style={{ color: '#f43f5e', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>-{fmt(expense)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>egresos</span></div>
+            <div className="summary-grid" style={{ margin: '12px 12px 0' }}>
+              <div style={{ background: '#fff', borderRadius: 18, padding: '16px 18px', ...sh, border: '1px solid #eef0f4' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ ...eyebrow, marginBottom: 5 }}>Balance del mes</div>
+                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: balance >= 0 ? '#10b981' : '#ef4444', lineHeight: 1 }}>{fmt(balance)}</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                    <div><span style={{ color: '#10b981', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>+{fmt(income)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>ingresos</span></div>
+                    <div><span style={{ color: '#f43f5e', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>-{fmt(expense)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>egresos</span></div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div style={{ margin: '12px 12px 0', background: '#fff', borderRadius: 18, padding: '16px 18px', ...sh, border: '1px solid #eef0f4' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ ...eyebrow, marginBottom: 5 }}>Mes anterior · {prevMonthLabel}</div>
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: prevBalance >= 0 ? '#10b981' : '#ef4444', lineHeight: 1 }}>{prevIncome + prevExpense === 0 ? '—' : fmt(prevBalance)}</div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
-                  <div><span style={{ color: '#10b981', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>+{fmt(prevIncome)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>ingresos</span></div>
-                  <div><span style={{ color: '#f43f5e', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>-{fmt(prevExpense)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>egresos</span></div>
+              <div style={{ background: '#fff', borderRadius: 18, padding: '16px 18px', ...sh, border: '1px solid #eef0f4' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ ...eyebrow, marginBottom: 5 }}>Mes anterior · {prevMonthLabel}</div>
+                    <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 600, color: prevBalance >= 0 ? '#10b981' : '#ef4444', lineHeight: 1 }}>{prevIncome + prevExpense === 0 ? '—' : fmt(prevBalance)}</div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                    <div><span style={{ color: '#10b981', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>+{fmt(prevIncome)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>ingresos</span></div>
+                    <div><span style={{ color: '#f43f5e', fontFamily: 'DM Mono', fontWeight: 500, fontSize: 13 }}>-{fmt(prevExpense)}</span><span style={{ color: '#a8b0bf', marginLeft: 4, fontSize: 11 }}>egresos</span></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1592,8 +1625,8 @@ export default function App() {
           </div>
         )}
 
-        {/* ── Bottom nav ── */}
-        <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: 430, background: '#fff', borderTop: '1px solid #eef0f4', display: 'flex', zIndex: 100 }}>
+        {/* ── Bottom nav (mobile only, hidden on desktop) ── */}
+        <div className="bottom-nav" style={{ zIndex: 100 }}>
           {NAV.map(item => {
             const active = nav === item.id
             return (
