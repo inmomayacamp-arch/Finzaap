@@ -1027,9 +1027,17 @@ export default function App() {
           <div style={{ flex: 1 }}>
             <div style={{ padding: '52px 20px 20px', background: '#fff', ...sh }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <div>
-                  <div style={{ ...eyebrow }}>agosto 2026</div>
-                  <div style={{ fontWeight: 700, fontSize: 24, color: '#0f1117', marginTop: 3 }}>Mi Cartera</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 34, height: 34, background: '#eef2ff', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+                      <circle cx="9.5" cy="14.5" r="6" fill="#10b981" opacity="0.9" />
+                      <circle cx="14.5" cy="9.5" r="6" fill="#6366f1" opacity="0.92" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ ...eyebrow }}>agosto 2026</div>
+                    <div style={{ fontWeight: 700, fontSize: 24, color: '#0f1117', marginTop: 3 }}>Mi Cartera</div>
+                  </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   {syncStatus === 'ok' && <Wifi size={14} color="#10b981" />}
