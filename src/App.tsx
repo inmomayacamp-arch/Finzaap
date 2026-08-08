@@ -133,9 +133,13 @@ function UserSetup({ onDone }: { onDone: (name: string, id: string) => void }) {
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg,#f0f2f5,#e8eaf0)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ width: '100%', maxWidth: 360, background: '#fff', borderRadius: 28, padding: '36px 28px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
-        <div style={{ width: 52, height: 52, background: 'linear-gradient(135deg,#6366f1,#a78bfa)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
-          <Users size={24} color="#fff" />
+        <div style={{ width: 52, height: 52, background: '#eef2ff', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="9.5" cy="14.5" r="6" fill="#10b981" opacity="0.9" />
+            <circle cx="14.5" cy="9.5" r="6" fill="#6366f1" opacity="0.92" />
+          </svg>
         </div>
+        <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em', color: '#0f1117', marginBottom: 20 }}>FinzApp</div>
 
         {step === 'name' && <>
           <div style={{ fontWeight: 700, fontSize: 22, color: '#0f1117', marginBottom: 6 }}>¿Cómo te llamas?</div>
